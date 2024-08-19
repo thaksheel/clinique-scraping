@@ -85,7 +85,7 @@ class Clinique:
     def get_response(self, client: httpx.Client, url):
         try:
             # TODO: error handling here: json.decoder.JSONDecodeError
-            c = client.get(url, headers=HEADERS, timeout=30.0).json()
+            c = client.get(url, headers=HEADERS, timeout=300.0).json()
             return c
         except json.decoder.JSONDecodeError:
             print(f"JSONDecodeError in {url}")

@@ -154,7 +154,7 @@ class Sephora:
 
     def scrape_rating(self, export=0):
         print("---------> Started scraping products <---------")
-        page = httpx.get(CLINIQUE_URL, headers=HEADERS, timeout=30.0)
+        page = httpx.get(CLINIQUE_URL, headers=HEADERS, timeout=300.0)
         soup = BeautifulSoup(page.text, "html.parser")
         DATA["num_pages"], num_products = self.get_pages_num(soup)
 
