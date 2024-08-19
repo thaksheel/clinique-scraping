@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinique Product Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='logo.png') }}">
+    <!-- <script src="//cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='handler.js') }}"></script>
+
+</head>
+
+<body>
+    <nav class="nav-bar">
+        <h1>clinique product scraper</h1>
+    </nav>
+    <div class="wrapper">
+        <section class="header">
+            <div class="description">
+                <h1>Scrape Clinique's Products</h1>
+                <ul>
+                    <li>This scraper collects all Sephora and Clinique product ratings and reviews</li>
+                    <li>It can take up to 30 mins due to the amount of requests required for the scraping</li>
+                    <li>This application is a custom scrapper for the Clinique and Sephora official websites</li>
+                </ul>
+            </div>
+            <form method="POST" id="scrape-form" action="#">
+                <input id="scrape-btn" type="submit" name="scrape" value="Begin Scraping">
+            </form>
+        </section>
+
+        <section class="scrape-results">
+            <h1>Find the Results Below</h1>
+            <p class="info">
+                {% block content %}
+                {% if status=='success' %}
+                <div class="finished">Success! Find the updated product ratings and reviews below.</div > 
+                {% endif %}
+                {% if status=='error' %}
+                <div class="error">Error! An error occurred while scraping. Please contact tna324@lehigh.edu</div>
+                {% endif %}
+                {% if status=='waiting' %}
+                The scraping is still processing, the dataset below are from 8/14/2024 12 pm EST. Feel free to explore this dataset while the application is collecting the latest data for Clinique.
+                {% endif %}
+                {% endblock %}
+
+            </p>
+            <div class="results">
+                <ul>
+                    <li class="result">
+                        <a href="{{ url_for('downloads', filename='clinique_rating.xlsx') }}"
+                            title="Click to Download">Clinique Product
+                            Rating</a>
+                        <p>This excel contains all products rating (5-start rating by customers from 1-5) on Clinique's
+                            website</p>
+                    </li>
+                    <li class="result">
+                        <a href="{{ url_for('downloads', filename='clinique_reviews.xlsx') }}"
+                            title="Click to Download">Clinique Product
+                            Reviews</a>
+                        <p>This excel contains all products reviews text (text comments from customers) on Clinique's
+                            website </p>
+                    </li>
+                    <li class="result">
+                        <a href="{{ url_for('downloads', filename='sephora_rating.xlsx') }}"
+                            title="Click to Download">Sephora Product
+                            Rating</a>
+                        <p>This excel contains all products rating (5-start rating by customers from 1-5) on Sephora's
+                            website for Clinique's products</p>
+                    </li>
+                    <li class="result">
+                        <a href="{{ url_for('downloads', filename='sephora_reviews.xlsx') }}"
+                            title="Click to Download">Sephora Product
+                            Reviews</a>
+                        <p>This excel contains all products reviews text (text comments from customers) on Sephora's
+                            website for Clinique's products</p>
+                    </li>
+                    <li class="result smaller">
+                        <a href="{{ url_for('downloads', filename='connection_table.xlsx') }}"
+                            title="Click to Download">Connection Table</a>
+                        <p>This excel contains which Sephora's SKUs match with Clinique's SKUs</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="docs">
+            <h1>Scraping Methodology</h1>
+            <div class="content">
+                <div class="part1">
+                    <h3>Python Libraries/Frameworks </h3>
+                    <ul>
+                        <li>This applications uses a asynchronous requests library called httpx together with
+                            BeautifulSoup for html parsing </li>
+                        <li>Httpx is preferred over requests library for its asynchronous properties. Without this
+                            feature, the application will take more than two hours to scrape all this information </li>
+                        <li>Asynchronous requests allow the application to process more than one request while it is
+                            waiting for a response from the server. Synchronous requests will wait until the current
+                            requests are fully fetched to begin next operations. Therefore, asynchronous requests use
+                            all the downtime while the server is waiting for the current request and process other
+                            requests in its queue concurrently</li>
+                        <li>Finally, BeautifulSoup is a preferred library for html parsing for its lightweight features
+                            to query and search through html documents </li>
+                    </ul>
+                </div>
+
+                <div class="part2">
+                    <h3>Product Rating Scraping </h3>
+                    <ul>
+                        <li>For both Clinique and Sephora product rating data, the application uses the dataset the
+                            server sends to the page upon loading a product </li>
+                        <li>This dataset contains all the product information in an organized manner</li>
+                        <li>The alternative would be to look into each element of the html document which would add to
+                            computation time </li>
+                        <li>The dataset present in the html document is in a JSON format, therefore, making it this
+                            application search operations O(1) in computation time </li>
+                        <li>Note: the skus present for each company are different. A connection_table file was created
+                            to match products from Clinique website to products from Sephora's website </li>
+                    </ul>
+                </div>
+
+                <div class="part3">
+                    <h3>Clinique and Sephora Connection Table </h3>
+                    <ul>
+                        <li>Given that Clinique and Sephora list products with slightly different names and Sephora does
+                            not list the entirety of Clinique products' on its website, a connection table was created
+                            to connect the SKUs from Clinique products to Sephora products </li>
+                        <li>To ensure a correct match, a fuzzy string matching method was used. This allows for a match
+                            to happen between two product names that might have slight differences. For instance,
+                            “Clinique Almost Lipstick” product from Clinique's website will match with “Almost Lipstick”
+                            from Sephora. The fuzzy string matches a product's name based on the least number of
+                            transformations required for both strings to match exactly </li>
+                        <li>In the above example, fuzzy strings will transform the string once by removing “Clinique”
+                            keyword to arrive to a perfect match. This transformation include changing, removing, and
+                            inserting letters or phrases until an exact match is reached. Therefore, if both strings are
+                            already exact matches, the fuzzy_ratio score will be 100. On the other hand, if the
+                            transformation requests all the letters from the string to be changed, the fuzzy_ratio score
+                            will be 0 </li>
+                        <li>Lastly, after much testing, a fuzzy_ratio of 72 and above was the threshold where Clinique
+                            and Sephora products are exactly the same. Everything below a fuzzy_ratio of 72 was placed
+                            in the
+                            <a href="{{ url_for('downloads', filename='unlinked_table.xlsx') }}">unlinked_ratio </a>
+                            file for future reference
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="part4">
+                    <h3>Clinique Reviews Scraping </h3>
+                    <ul>
+                        <li>A large portion of computation time stems from the product reviews scraping. For both
+                            Sephora and Clinique, there are products with well over 4000 reviews. This application
+                            scrapes all the reviews for all the products in both Sephora and Clinique dataset entirely
+                        </li>
+                        <li>For both Sephora and Clinique reviews, there is a specific API endpoint used to generate the
+                            reviews on the page. This endpoint communicated directly to their database and it returns a
+                            JSON object with the reviews information </li>
+                        <li>Clinique Reviews endpoint
+                            <ul>
+                                <li>
+                                    Endpoint:
+                                    https://display.powerreviews.com/m/166973/l/en_US/product/106878/reviews?apikey=528023b7-ebfb-4f03-8fee-2282777437a7
+                                    &_noconfig=true&paging.from=10&paging.size=25
+
+                                </li>
+                                <li>
+                                    The above link shows the structure of this endpoint. It uses the product_id (106878
+                                    in this case)
+                                </li>
+                                <li>
+                                    The important feature of this endpoint is the paging.size. This is a limit on the
+                                    database where it can only return 25 reviews per requests. Therefore, if there is
+                                    over 1000 reviews, this application does 40 requests to collect the reviews
+
+                                </li>
+                                <li>
+                                    Note that for each request, the application waits for the server to respond before
+                                    coming onto the next request. Asynchronous capabilities are limited here given the
+                                    information will arrive in fragments and will be challenging to re-arrange into a
+                                    uniform dataset
+
+                                </li>
+                                <li>
+                                    Still to improve on computation time, a connection pooling framework was used where
+                                    a connection is open and closed only when all the product reviews have been
+                                    scrapped. This significantly improves computation time since opening and closing a
+                                    request connection takes a significant amount of downtime
+
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="part5">
+                    <h3>Sephora Reviews endpoint</h3>
+                    <ul>
+                        <li>Sephora endpoint details<ul>
+                                <li>
+                                    https://api.bazaarvoice.com/data/reviews.json?Filter=contentlocale%3Aen*&Filter=ProductId%3A{product_id}
+                                </li>
+                                <li>
+                                    &Sort=SubmissionTime%3Adesc&Limit={100}
+                                </li>
+                                <li>&Offset={offset}&Include=Products%2CComments&Stats=Reviews&</li>
+                                <li>passkey=calXm2DyQVjcCy9agq85vmTJv5ELuuBCF2sdg4BnJzJus&apiversion=5.4 </li>
+                            </ul>
+                        </li>
+                        <li>Similarly, this endpoint communicates directly to the Sephora database where all the reviews
+                            are stored </li>
+                        <li>However, this endpoint allows for 100 reviews per request, hence speeding up the application
+                            significantly </li>
+                    </ul>
+                </div>
+
+                <div class="part6">
+                    <h3>Notes on Errors</h3>
+                    <ul>
+                        <li>This application is not future proof yet. Therefore, any small changes that Sephora or
+                            Clinique might make on their website and its structure will break this application </li>
+                        <li>If any errors show up, please contact tna324@lehigh.edu </li>
+                        <li>Additionally, feedback on the accuracy of this information is most welcome </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <section class="footer">
+        <div class="dev-details">
+            <div class="detail">
+                <h3 class="details-head">Developer Details</h3>
+                <p>Thaksheel Alleck</p>
+                <a href="mailto:tna324@lehigh.edu">tna324@lehigh.edu</a>
+                <p>Industrial and Systems Engineering and Marketing dual Degree student at Lehigh University</p>
+                <p style="text-decoration: underline;"><a href="https://github.com/thaksheel/mktr-api">GitHub Repo</a></p>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>
