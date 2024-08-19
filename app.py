@@ -9,6 +9,7 @@ from clinique import Clinique
 from sephora import Sephora
 import connect_tables
 import time 
+import os 
 
 
 app = Flask(__name__)
@@ -20,6 +21,8 @@ app = Flask(__name__)
 def home():
     return render_template("index.html", status='waiting')
 
+
+print('here')
 
 @app.route("/scrape", methods=["POST"])
 def scrape():
@@ -40,4 +43,4 @@ def downloads(filename):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port="8000")
+    app.run(port=int(os.environ.get('PORT', 5000)))
