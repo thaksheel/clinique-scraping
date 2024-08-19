@@ -22,7 +22,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def home():
     return render_template("index.html", status='waiting')
 
-@app.route("/scrape", methods=["POST"])
+@app.route("/scrape", methods=["POST"], timeout=300)
 @cross_origin()
 def scrape():
     if request.method == 'POST': 
