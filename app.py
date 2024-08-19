@@ -4,7 +4,7 @@ from flask import (
     render_template,
     send_from_directory,
 )
-from flask_cors import cross_origin 
+from flask_cors import CORS, cross_origin
 from clinique import Clinique
 from sephora import Sephora
 import connect_tables
@@ -13,6 +13,7 @@ import os
 
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 # app.json.sort_keys = False
 
 
@@ -21,12 +22,10 @@ app = Flask(__name__)
 def home():
     return render_template("index.html", status='waiting')
 
-
-print('here')
-
 @app.route("/scrape", methods=["POST"])
+@cross_origin()
 def scrape():
-    if request.method == 'POST' and 'scrape' in request.form: 
+    if request.method == 'POST': 
         p = time.time()
         clinique = Clinique()
         clinique.run(reviews=True, export=1)
