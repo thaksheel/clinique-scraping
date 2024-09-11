@@ -5,7 +5,7 @@ import httpx
 import math
 import chardet
 import copy
-import time 
+import time
 
 
 BASE = "https://www.sephora.com"
@@ -31,10 +31,12 @@ HEADERS = {
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
     "Referer": "http://www.google.com/",  # this made it work
-    # "Accept-Encoding": "gzip, deflate, br",  # this makes it not work 
+    # "Accept-Encoding": "gzip, deflate, br",  # this makes it not work
 }
 reviews_template = {
     "sku": [],
+    "incentivizedReview": [],
+    "verifiedPurchaser": [],
     "LastModificationTime": [],
     "OriginalProductName": [],
     "IsFeatured": [],
@@ -85,6 +87,9 @@ class Sephora:
         for res in response:
             reviews["sku"].append(sku)
             for key, value in res.items():
+                if key == "BadgesOrder":
+                    reviews["verifiedPurchaser"].append("verifiedPurchaser" in value)
+                    reviews["incentivizedReview"].append("incentivizedReview" in value)
                 if key in reviews or key == "ContextDataValues":
                     if key == "ContextDataValues":
                         for k, v in res[key].items():
@@ -144,9 +149,9 @@ class Sephora:
                     requests_count += 1
                     if reviews_length >= num_results:
                         break
-                print(f'Review Scraping Done: {num_results}, Progress: {i}/{len(product_ids)}')
-        # with open(DIRECTORY + "sephora_reviews.json", "w") as f:
-        #     json.dump(sephora_reviews, f)
+                print(
+                    f"Review Scraping Done: {num_results}, Progress: {i}/{len(product_ids)}"
+                )
         df = pd.DataFrame(sephora_reviews)
         df.to_excel(DIRECTORY + "sephora_reviews.xlsx", index=False)
 
@@ -158,7 +163,9 @@ class Sephora:
         soup = BeautifulSoup(page.text, "html.parser")
         DATA["num_pages"], num_products = self.get_pages_num(soup)
 
-        with httpx.Client(limits=httpx.Limits(max_connections=200, max_keepalive_connections=50)) as client:
+        with httpx.Client(
+            limits=httpx.Limits(max_connections=200, max_keepalive_connections=50)
+        ) as client:
             for k in range(DATA["num_pages"]):
                 new_url = CLINIQUE_URL + QUERY + str(k + 1)
                 page = client.get(new_url, headers=HEADERS)

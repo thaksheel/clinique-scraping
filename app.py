@@ -27,12 +27,12 @@ def home():
 def scrape():
     if request.method == 'POST': 
         p = time.time()
-        # clinique = Clinique()
-        # clinique.run(reviews=True, export=1)
-        # sephora = Sephora()
-        # sephora.scrape_rating(export=1)
-        # sephora.scrape_reviews()
-        # connect_tables.link()
+        clinique = Clinique()
+        clinique.run(reviews=True, export=1)
+        sephora = Sephora()
+        sephora.scrape_rating(export=1)
+        sephora.scrape_reviews()
+        connect_tables.link()
         print(f"Duration: {round((time.time() - p), 3)}s")
     return '', 201
 

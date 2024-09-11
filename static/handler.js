@@ -4,8 +4,8 @@ $(document).ready(function () {
         alert('Scraping has started, the estimated processing time is 30-35 mins'); 
         $.ajax({
             // TODO: add the link here for api requests 
-            // url: "http://127.0.0.1:5000/scrape",
-            url: "https://reviews-rating-research-api-e1d7a9ccd772.herokuapp.com/scrape",
+            url: "http://127.0.0.1:5000/scrape",
+            // url: "https://reviews-rating-research-api-e1d7a9ccd772.herokuapp.com/scrape",
             type: "POST",
             success: function (res) {
                 $(".info").html('<div class="finished">Success! Find the updated product ratings and reviews below.</div >');
