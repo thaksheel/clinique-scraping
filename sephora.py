@@ -11,6 +11,7 @@ import time
 BASE = "https://www.sephora.com"
 CLINIQUE_URL = "https://www.sephora.com/brand/clinique"
 sephora_rating = {
+    'collected_on': [], 
     "product_name": [],
     "review": [],
     "review_count": [],
@@ -34,6 +35,7 @@ HEADERS = {
     # "Accept-Encoding": "gzip, deflate, br",  # this makes it not work
 }
 reviews_template = {
+    'collected_on': [], 
     "sku": [],
     "incentivizedReview": [],
     "verifiedPurchaser": [],
@@ -86,6 +88,9 @@ class Sephora:
     def process_response(self, response, reviews, sku, url):
         for res in response:
             reviews["sku"].append(sku)
+            current_time = time.localtime()
+            current_time_str = time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+            reviews["collected_on"].append(current_time_str)
             for key, value in res.items():
                 if key == "BadgesOrder":
                     reviews["verifiedPurchaser"].append("verifiedPurchaser" in value)
@@ -190,6 +195,8 @@ class Sephora:
                             .replace("&trade;", "")
                         )
                         sephora_rating["url"].append(BASE + product["targetUrl"])
+                        current_time_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                        sephora_rating["collected_on"].append(current_time_str)
                 print(
                     f'Progress ({round(len(sephora_rating["product_id"])/num_products, 2) * 100}%): {len(sephora_rating["product_id"])}/{num_products}'
                 )

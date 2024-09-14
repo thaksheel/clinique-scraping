@@ -17,6 +17,7 @@ PRODUCT_CAT_URLS = [
     "https://www.clinique.com/skincare-all",
 ]
 clinique_rating = {
+    'collected_on': [], 
     "product_name": [],
     "product_cat": [],
     "sku": [],
@@ -25,6 +26,7 @@ clinique_rating = {
     "url": [],
 }
 reviews_template = {
+    'collected_on': [],
     "sku": [],
     # 'url': [],
     "is_staff_reviewer": [],
@@ -93,6 +95,8 @@ class Clinique:
     def process_response(self, response, reviews, sku, url):
         for _, res in enumerate(response):
             reviews["sku"].append(sku)
+            datetime_string = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            reviews["collected_on"].append(datetime_string)
             # processing badges:  {"is_staff_reviewer": false,"is_verified_buyer": false,"is_verified_reviewer": true},
             for k, v in res["badges"].items():
                 reviews[k].append(v)
@@ -286,6 +290,8 @@ class Clinique:
             str(js["name"]).replace("\u2122", "").replace("&trade;", "")
         )
         clinique_rating["url"].append(url)
+        datetime_string = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        clinique_rating["collected_on"].append(datetime_string)
         clinique_rating["sku"].append(js["sku"])
         clinique_rating["product_cat"].append(PRODUCT_CAT[url])
         print(f'{i}) Product Done: {js["name"]}')
@@ -342,5 +348,5 @@ class Clinique:
 
 if __name__ == "__main__":
     clinique = Clinique()
-    clinique.run(reviews=False, export=1)
+    clinique.run(reviews=True, export=1)
     print(f"Duration: {round((time.time() - p), 3)}s")

@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('#scrape-form').submit(function (event) {
         event.preventDefault();
-        alert('Scraping has started, the estimated processing time is 30-35 mins'); 
+        alert('Scraping has started, the estimated processing time is 5-15 mins'); 
         $.ajax({
             // TODO: add the link here for api requests 
             url: "http://127.0.0.1:5000/scrape",
